@@ -1,16 +1,22 @@
 use grid::Grid; // For lcs()
 use std::env;
 use std::fs::File; // For read_file_lines()
-use std::io::{self, BufRead}; // For read_file_lines()
+use std::io::{self, BufRead};
+use std::cmp::max;
+// For read_file_lines()
 use std::process;
 
 pub mod grid;
 
 /// Reads the file at the supplied path, and returns a vector of strings.
-#[allow(unused)] // TODO: delete this line when you implement this function
 fn read_file_lines(filename: &String) -> Result<Vec<String>, io::Error> {
-    unimplemented!();
-    // Be sure to delete the #[allow(unused)] line above
+    let mut res: Vec<String> = Vec::new();
+    let file = File::open(filename)?;
+    for line in io::BufReader::new(file).lines() {
+        let line_str = line?;
+        res.push(line_str)
+    }
+    Ok(res)
 }
 
 #[allow(unused)] // TODO: delete this line when you implement this function
@@ -40,8 +46,29 @@ fn main() {
     let filename1 = &args[1];
     let filename2 = &args[2];
 
-    unimplemented!();
-    // Be sure to delete the #[allow(unused)] line above
+    let file_one = read_file_lines(filename1).unwrap();
+    let file_two = read_file_lines(filename2).unwrap();
+
+    let get_col_length = |file: &Vec<String>| {
+        let mut max_len = 0;
+        for i in 0..file.len() {
+            max_len = max(max_len, file[i].len())
+        }
+        max_len
+    };
+
+    let file_one_rows_length = file_one.len();
+    let file_one_col_length = get_col_length(&file_one);
+    
+    let file_two_rows_length = file_two.len();
+    let file_two_col_length = get_col_length(&file_two);
+
+
+    let grid_one = Grid::new(file_one_rows_length, file_one_col_length);
+    let grid_two = Grid::new(file_two_rows_length, file_two_col_length);
+
+    // println!("{:}", grid_one);
+    // println!("{:}", grid_two);
 }
 
 #[cfg(test)]
