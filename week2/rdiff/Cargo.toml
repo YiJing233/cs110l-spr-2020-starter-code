@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Armin Namavari <arminn@stanford.edu>"]
 
 [dependencies]
+colored = "2" # 命令终端多彩显示

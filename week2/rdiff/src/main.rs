@@ -5,7 +5,9 @@ use std::io::{self, BufRead};
 use std::cmp::max;
 // For read_file_lines()
 use std::process;
-
+// use colored::*;
+extern crate colored;
+use colored::Colorize;
 pub mod grid;
 
 /// Reads the file at the supplied path, and returns a vector of strings.
@@ -19,24 +21,52 @@ fn read_file_lines(filename: &String) -> Result<Vec<String>, io::Error> {
     Ok(res)
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
+#[allow(unused)]
 fn lcs(seq1: &Vec<String>, seq2: &Vec<String>) -> Grid {
     // Note: Feel free to use unwrap() in this code, as long as you're basically certain it'll
-    // never happen. Conceptually, unwrap() is justified here, because there's not really any error
+    // never happen. cortexonceptually, unwrap() is justified here, because there's not really any error
     // condition you're watching out for (i.e. as long as your code is written correctly, nothing
     // external can go wrong that we would want to handle in higher-level functions). The unwrap()
-    // calls act like having asserts in C code, i.e. as guards against programming error.
-    unimplemented!();
-    // Be sure to delete the #[allow(unused)] line above
+    // calls act like having asserts in cortex code, i.e. as guards against programming error.
+    let (m , n) = (seq1.len(), seq2.len());
+    let mut cortex = Grid::new(m+1, n+1);
+
+    for i in 0..m+1 {
+        cortex.set(i, 0, 0);
+    }
+
+    for j in 0..n+1 {
+        cortex.set(0, j, 0);
+    }
+    for i in 0..m {
+        for j in 0..n {
+            if seq1[i] == seq2[j] {
+                cortex.set(i+1, j+1, cortex.get(i, j).unwrap() + 1);
+            } else {
+                cortex.set(i+1, j+1, max(cortex.get(i+1, j).unwrap(), cortex.get(i, j+1).unwrap()));
+            }
+        }
+    }
+    cortex
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
+#[allow(unused)]
 fn print_diff(lcs_table: &Grid, lines1: &Vec<String>, lines2: &Vec<String>, i: usize, j: usize) {
-    unimplemented!();
-    // Be sure to delete the #[allow(unused)] line above
+    if i > 0 && j > 0 && lines1[i-1] == lines2[j-1] {
+        print_diff(lcs_table, lines1, lines2, i - 1, j - 1);
+        println!("  {}", lines1[i-1]);
+    } else if j > 0 && (i == 0 || lcs_table.get(i, j-1).unwrap() >= lcs_table.get(i-1, j).unwrap()) {
+        print_diff(lcs_table, lines1, lines2, i, j - 1);
+        println!("> {}", lines2[j-1].green());
+    } else if i > 0 && (j == 0 || lcs_table.get(i, j-1).unwrap() < lcs_table.get(i-1, j).unwrap()) {
+        print_diff(lcs_table, lines1, lines2, i - 1, j);
+        println!("< {}", lines1[i-1].red());
+    } else {
+        println!("");
+    }
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
+#[allow(unused)]
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -46,27 +76,29 @@ fn main() {
     let filename1 = &args[1];
     let filename2 = &args[2];
 
-    let file_one = read_file_lines(filename1).unwrap();
-    let file_two = read_file_lines(filename2).unwrap();
+    let lines1 = read_file_lines(filename1).unwrap();
+    let lines2 = read_file_lines(filename2).unwrap();
 
-    let get_col_length = |file: &Vec<String>| {
-        let mut max_len = 0;
-        for i in 0..file.len() {
-            max_len = max(max_len, file[i].len())
-        }
-        max_len
-    };
+    // let get_col_length = |file: &Vec<String>| {
+    //     let mut max_len = 0;
+    //     for i in 0..file.len() {
+    //         max_len = max(max_len, file[i].len())
+    //     }
+    //     max_len
+    // };
 
-    let file_one_rows_length = file_one.len();
-    let file_one_col_length = get_col_length(&file_one);
+    // let file_one_rows_length = file_one.len();
+    // let file_one_col_length = get_col_length(&file_one);
     
-    let file_two_rows_length = file_two.len();
-    let file_two_col_length = get_col_length(&file_two);
+    // let file_two_rows_length = file_two.len();
+    // let file_two_col_length = get_col_length(&file_two);
 
 
-    let grid_one = Grid::new(file_one_rows_length, file_one_col_length);
-    let grid_two = Grid::new(file_two_rows_length, file_two_col_length);
+    // let grid_one = Grid::new(file_one_rows_length, file_one_col_length);
+    // let grid_two = Grid::new(file_two_rows_length, file_two_col_length);
 
+    let lcs = lcs(&lines1, &lines2);
+    print_diff(&lcs, &lines1, &lines2, lines1.len(), lines2.len());
     // println!("{:}", grid_one);
     // println!("{:}", grid_two);
 }
